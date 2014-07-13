@@ -7,7 +7,5 @@
 
 bool EventParams::Find(const std::string& szParamName) const
 {
-  //return m_params.find(szParamName) != m_params.end();
-
-  return false;
+  return m_params.find(szParamName) != m_params.end();
 }

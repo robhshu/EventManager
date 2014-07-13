@@ -12,7 +12,7 @@
 
 class EventParams
 {
-  typedef std::map<std::string, void*> m_params;
+  std::map<std::string, void*> m_params;
 
 public:
   bool Find(const std::string& szParamName) const;
