@@ -2,125 +2,93 @@
 //  EventManager.h
 //  EventManager
 //
-//  Created by Mayank Saini on 15/12/12.
-//  Copyright (c) 2012 Hashstash Studios. All rights reserved.
-//
+#ifndef EVENTMANAGER_H
+#define EVENTMANAGER_H
 
-#ifndef EventManager_EventManager_h
-#define EventManager_EventManager_h
+#include <cassert>
 
-#include <vector>
-#include <map>
 #include <string>
+#include <map>
+#include <vector>
+#include <memory>
 
-using namespace std;
-namespace Mage {
-    #define TEMPLATE template <typename Class> 
-    
-    // Abstract Class for EventHandler to notify of a change
-    class EventHandlerBase {
-    public:
-        virtual void execute() = 0;
-    };
-    
-    // Event Handler Class : Handles Callback
-    template <typename Class>
-    class EventHandler : public EventHandlerBase{
-        // Defining type for function pointer
-        typedef void (Class::*_fptr)(void);
-        
-        
-        
-    public:
-        // Object of the Listener
-        Class *object;
-        // Function for callback
-        _fptr function;
-        
-        EventHandler(Class *obj, _fptr func) {
-            object = obj;
-            function = func;
-        }
-        
-        void execute() {
-            (object->*function)();
-        }
-    };
-    
-    // Class to create a event
-    class Event {
-        // To store all listeners of the event
-        typedef std::map<int, EventHandlerBase*> EventHandlerMap;
-        EventHandlerMap handlers;
-        int count;
-    public:
-        
-        template <typename Class>
-        void addListener(Class *obj, void (Class::*func)(void)) {
-            handlers[count] = new EventHandler<Class>(obj, func);
-            count++;
-        }
-        
-        void execute() {
-            for (EventHandlerMap::iterator it = handlers.begin(); it != handlers.end(); ++it) {
-                it->second->execute();
-            }
-        }
+#include "EventParams.h"
+#include "Event.h"
+#include "EventHandler.h"
 
-    };
-    
-    class EventManager {
-        struct EventType {
-            Event *event;
-            string name;
-        };
-        
-        std::vector<EventType> _events;
-        
-        static EventManager *_Instance;
-        
-        EventManager(){};
-    public:
-        static EventManager* Instance() {
-            if (!_Instance) {
-                _Instance = new EventManager();
-            }
-            return _Instance;
-        }
-        
-        void createEvent(string name) {
-			for(vector<EventType>::iterator it = _events.begin(); it != _events.end(); ++it) {
-				EventType e = *it;
-				if(e.name.compare(name) == 0)
-					return;
-			}
-            EventType e;
-            e.event = new Event();
-            e.name = name;
-            _events.push_back(e);
-        }
-        
-        template <typename Class>
-        bool subscribe(string name, Class *obj, void (Class::*func)(void)) {
-            for (vector<EventType>::iterator it = _events.begin(); it != _events.end(); ++it) {
-                EventType e = *it;
-                if (e.name.compare(name) == 0) {
-                    e.event->addListener(obj, func);
-                    return true;
-                }
-            }
-            return false;
-        }
-        
-        void execute(string name) {
-            for (vector<EventType>::iterator it = _events.begin(); it != _events.end(); ++it) {
-                EventType e = *it;
-                if (e.name.compare(name) == 0) {
-                    e.event->execute();
-                }
-            }
-        }
-    };
+template<typename T>
+class EventManager
+{
+  typedef std::map<T, Event> MappedEvents;
+  MappedEvents m_events;
 
-}
+protected:
+  EventManager(){ }
+
+public:
+  static EventManager& Get()
+  {
+    static EventManager sManager;
+    return sManager;
+  }
+
+  bool HasEvent(const T& rEventKey) const
+  {
+    return m_events.find(rEventKey) != m_events.end();
+  }
+
+  void CreateEvent(const T& rEventKey)
+  {
+    if (HasEvent(rEventKey))
+    {
+      assert(false);
+      return;
+    }
+
+    // constructs an event automatically
+    m_events[rEventKey];
+  }
+
+  void OnEvent(const T& rEventKey, EventParams& args)
+  {
+    MappedEvents::iterator itResult = m_events.find(rEventKey);
+
+    // event should already exist
+    assert(itResult != m_events.end());
+
+    if (itResult != m_events.end())
+    {
+      (*itResult).second(args);
+    }
+  }
+
+  template <typename EventT>
+  bool RegisterEvent(const T& rEventKey, EventT* pInst, void (EventT::*func)(EventParams& args))
+  {
+    // ensure that an instance of T has been given
+    assert(pInst);
+
+    if (!pInst)
+    {
+      return false;
+    }
+
+    // ensure that this event has already been created
+    assert(HasEvent(rEventKey));
+
+    // todo: create event internal, returning iterator
+
+    MappedEvents::iterator itResult = m_events.find(rEventKey);
+    // event should already exist
+    assert(itResult != m_events.end());
+    if (itResult != m_events.end())
+    {
+      (*itResult).second.AddListener<EventT>(pInst, func);
+      return true;
+    }
+
+    return false;
+  }
+};
+
 #endif
