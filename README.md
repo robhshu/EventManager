@@ -1,20 +1,17 @@
-EventManager-Cpp
-================
+# EventManager-Cpp
 
-Description
-===========
+## Description
+
 A barebone event manager written in C++, updated to use the right standard containers, and extended to support different key types
 
 
-Sample Usage
-============
+## Sample Usage
 
 
-Output
-======
+## Output
 
 
-License
-=======
+## License
+
 This code is licensed under
-DO WHAT THE FUCK YOU WANT TO PUBLIC LICENSE
+DO WHATEVER YOU WANT PUBLIC LICENSE
