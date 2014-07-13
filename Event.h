@@ -30,9 +30,9 @@ public:
 
   // Add a callback for this event
   template <typename T>
-  void AddListener(T* pInst, void(T::*func)(EventParams& args))
+  void AddListener(std::shared_ptr<T>& spInst, void(T::*func)(EventParams& args))
   {
-    EventHandle handle(new EventHandler<T>(pInst, func));
+    EventHandle handle(new EventHandler<T>(spInst, func));
     m_callbackVec.push_back(handle);
   }
 

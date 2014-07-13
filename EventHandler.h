@@ -6,6 +6,7 @@
 #define EVENTHANDLER_H
 
 #include <cassert>
+#include <memory>
 
 #include "Event.h"
 
@@ -15,23 +16,28 @@ class EventHandler
 {
   typedef void (T::*TCallback)(EventParams& args);
 
-  T*        m_pClassInst;
-  TCallback m_pCallbackFunc;
+  std::shared_ptr<T>  m_classInst;
+  TCallback           m_pCallbackFunc;
 
 public:
 
   // Construct a new handler to store a class instance and target function
-  EventHandler(T* pClassInst, TCallback cbFunction)
-    : m_pClassInst(pClassInst)
+  EventHandler(std::shared_ptr<T>& rClassInst, TCallback cbFunction)
+    : m_classInst(rClassInst)
     , m_pCallbackFunc(cbFunction)
-  { }
+  {
+    assert(m_classInst);
+  }
 
   // Override the Run function in EventBase to call to the class function
   virtual void Run(EventParams& args)
   {
-    assert(m_pClassInst);
+    assert(m_classInst); // object may have been deleted?
 
-    (m_pClassInst->*m_pCallbackFunc)(args);
+    if (m_classInst) {
+
+      (m_classInst.get()->*m_pCallbackFunc)(args);
+    }
   }
 };
 

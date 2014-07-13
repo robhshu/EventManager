@@ -26,64 +26,55 @@ protected:
   EventManager(){ }
 
 public:
+
+  // Fetch an instance of the EventManager of this type
   static EventManager& Get()
   {
     static EventManager sManager;
     return sManager;
   }
 
+  // Check that there is an event of this type registered
   bool HasEvent(const T& rEventKey) const
   {
     return m_events.find(rEventKey) != m_events.end();
   }
 
+  // Create a new event
   void CreateEvent(const T& rEventKey)
   {
-    if (HasEvent(rEventKey))
-    {
-      assert(false);
-      return;
-    }
+    if (!HasEvent(rEventKey)) {
 
-    // constructs an event automatically
-    m_events[rEventKey];
+      // Constructs a new event automatically
+      m_events[rEventKey];
+    }
   }
 
+  // Triggers an event determined by the key (the event must exist)
   void OnEvent(const T& rEventKey, EventParams& args)
   {
     MappedEvents::iterator itResult = m_events.find(rEventKey);
 
-    // event should already exist
-    assert(itResult != m_events.end());
-
-    if (itResult != m_events.end())
-    {
+    // Event should already exist
+    if (itResult != m_events.end()) {
       (*itResult).second(args);
     }
   }
 
+  // Register a new listener based on a class instance (static or dynamic)
   template <typename EventT>
-  bool RegisterEvent(const T& rEventKey, EventT* pInst, void (EventT::*func)(EventParams& args))
+  bool RegisterEvent(const T& rEventKey, std::shared_ptr<EventT>& spInst, void (EventT::*func)(EventParams& args))
   {
-    // ensure that an instance of T has been given
-    assert(pInst);
-
-    if (!pInst)
-    {
+    if (!spInst) {
       return false;
     }
 
-    // ensure that this event has already been created
-    assert(HasEvent(rEventKey));
-
-    // todo: create event internal, returning iterator
-
     MappedEvents::iterator itResult = m_events.find(rEventKey);
-    // event should already exist
-    assert(itResult != m_events.end());
+
+    // Event should already exist
     if (itResult != m_events.end())
     {
-      (*itResult).second.AddListener<EventT>(pInst, func);
+      (*itResult).second.AddListener<EventT>(spInst, func);
       return true;
     }
 
