@@ -17,6 +17,8 @@ class EventParams
 public:
   bool Find(const std::string& szParamName) const;
 
+  int Count() const;
+
   template<class T>
   void Set(const std::string& szParamName, T& ptrValue)
   {
