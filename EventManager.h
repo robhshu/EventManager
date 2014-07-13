@@ -40,17 +40,7 @@ public:
     return m_events.find(rEventKey) != m_events.end();
   }
 
-  // Create a new event
-  void CreateEvent(const T& rEventKey)
-  {
-    if (!HasEvent(rEventKey)) {
-
-      // Constructs a new event automatically
-      m_events[rEventKey];
-    }
-  }
-
-  // Triggers an event determined by the key (the event must exist)
+  // Triggers an event determined by the key
   void OnEvent(const T& rEventKey, EventParams& args)
   {
     MappedEvents::iterator itResult = m_events.find(rEventKey);
@@ -63,22 +53,12 @@ public:
 
   // Register a new listener based on a class instance (static or dynamic)
   template <typename EventT>
-  bool RegisterEvent(const T& rEventKey, std::shared_ptr<EventT>& spInst, void (EventT::*func)(EventParams& args))
+  void RegisterEvent(const T& rEventKey, std::shared_ptr<EventT>& spInst, void (EventT::*func)(EventParams& args))
   {
-    if (!spInst) {
-      return false;
-    }
+    assert(spInst);
 
-    MappedEvents::iterator itResult = m_events.find(rEventKey);
-
-    // Event should already exist
-    if (itResult != m_events.end())
-    {
-      (*itResult).second.AddListener<EventT>(spInst, func);
-      return true;
-    }
-
-    return false;
+    // Our map will automatically add a non-existant key
+    m_events[rEventKey].AddListener<EventT>(spInst, func);
   }
 };
 
