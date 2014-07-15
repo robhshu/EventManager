@@ -16,27 +16,38 @@
 class EventBase
 {
 public:
-  // Abstract call overriden by each listener object (which wraps EventHandler)
-  virtual void Run(EventParams& args) = 0;
+  // Abstract call to trigger the event
+  virtual void Fire(EventParams& args) = 0;
+  virtual bool IsEvent(void* pInst) const = 0;
+  virtual ~EventBase() {} 
 };
 
 class Event
 {
-  typedef std::shared_ptr<EventBase>  EventHandle;
-  typedef std::vector<EventHandle>    EventHandleVec;
+  typedef std::vector<EventBase* > EventHandleVec;
 
+  // List of abstract event handlers
   EventHandleVec m_callbackVec;
 public:
 
-  // Add a callback for this event
+  // Cleanup our event handlers
+  ~Event();
+
+  // Create an event handler for this callback
   template <typename T>
-  void AddListener(std::shared_ptr<T>& spInst, void(T::*func)(EventParams& args))
+  void AddListener(T* spInst, void(T::*func)(EventParams& args))
   {
-    EventHandle handle(new EventHandler<T>(spInst, func));
+    EventHandler<T>* handle(new EventHandler<T>(spInst, func));
     m_callbackVec.push_back(handle);
   }
 
-  // Run this event over all associated listeners
+  // Remove references to a specific callback instance
+  void RemoveListener(void* pInst);
+
+  // Number of callbacks for this event
+  int Count() const { return m_callbackVec.size(); }
+
+  // Functor to trigger the event callbacks
   void operator()(EventParams& args);
 };
 
