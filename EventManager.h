@@ -23,6 +23,8 @@ class EventManager
   typedef std::map<T, Event> MappedEvents;
   MappedEvents m_events;
 
+  static EventManager sManagerInstance;
+
 protected:
   EventManager(){ }
 
@@ -30,8 +32,7 @@ public:
   // Fetch an instance of the EventManager
   static EventManager& Get()
   {
-    static EventManager sManager;
-    return sManager;
+    return sManagerInstance;
   }
 
   // Check that there is an event of this type registered
@@ -74,18 +75,21 @@ public:
   {
 	  MappedEvents::iterator it = m_events.begin();
 
-	  while( it != m_events.end() ) {
-		  (*it).second.RemoveListener(pInst);
+    while( it != m_events.end() ) {
+      (*it).second.RemoveListener(pInst);
 
       // If there are no callbacks registered, clear the event
-		  if( bClearOldEvents && (*it).second.Count() == 0 ) {
-			  it = m_events.erase(it);
-		  } else {
-  			++it;
-		  }
-	  }
+      if( bClearOldEvents && (*it).second.Count() == 0 ) {
+        it = m_events.erase(it);
+      } else {
+        ++it;
+      }
+    }
   }
 
 };
+
+template<typename T>
+EventManager<T> EventManager<T>::sManagerInstance;
 
 #endif

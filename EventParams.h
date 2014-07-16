@@ -20,17 +20,23 @@ public:
   bool Find(const std::string& szParamName) const;
 
   // Count the number of parameters that exist
-  int Count() const;
+  size_t Count() const;
 
   // Set a parameter value
   template<class T>
   void Set(const std::string& szParamName, T& ptrValue)
   {
-    assert(!HasParam(szParamName));
+    assert(!Find(szParamName));
 
-    if (!HasParam(szParamName)) {
+    if (!Find(szParamName)) {
       m_params[szParamName] = (void*)ptrValue;
     }
+  }
+
+  template<class T>
+  void Set(const std::string& szParamName, T* ptrValue)
+  {
+	  m_params[szParamName] = ptrValue;
   }
 
   // Remove a parameter if it exists, returning the reference
@@ -50,11 +56,20 @@ public:
 
   // Return the parameter value reference of known type
   template<class T>
-  T& Get(const std::string& szParamName)
+  const T& Get(const std::string& szParamName)
   {
-    assert(HasParam(szParamName));
+    assert(Find(szParamName));
 
     return (T&)m_params[szParamName];
+  }
+
+  // Return the parameter value as a pointer of known type
+  template<class T>
+  const T* GetPtr(const std::string& szParamName)
+  {
+	  assert(Find(szParamName));
+
+	  return (T*)m_params[szParamName];
   }
 };
 

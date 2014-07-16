@@ -45,7 +45,7 @@ public:
   void RemoveListener(void* pInst);
 
   // Number of callbacks for this event
-  int Count() const { return m_callbackVec.size(); }
+  size_t Count() const { return m_callbackVec.size(); }
 
   // Functor to trigger the event callbacks
   void operator()(EventParams& args);
