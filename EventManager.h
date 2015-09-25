@@ -17,39 +17,28 @@
 #include "EventHandler.h"
 
 // An EventManager can store event keys in a specific type
-template<typename T = std::string>
+template<class KeyType>
 class EventManager
 {
-  typedef std::map<T, Event> MappedEvents;
+  typedef std::map<KeyType, Event> MappedEvents;
   MappedEvents m_events;
 
-  static EventManager sManagerInstance;
-
-protected:
-  EventManager(){ }
-
 public:
-  // Fetch an instance of the EventManager
-  static EventManager& Get()
-  {
-    return sManagerInstance;
-  }
-
   // Check that there is an event of this type registered
-  bool HasEvent(const T& rEventKey) const
+  bool HasEvent(const KeyType& rEventKey) const
   {
     return m_events.find(rEventKey) != m_events.end();
   }
 
   // Trigger an event determined by the key (no params)
-  void OnEvent(const T& rEventKey)
+  void OnEvent(const KeyType& rEventKey)
   {
 	  EventParams no_params;
 	  OnEvent(rEventKey, no_params);
   }
 
   // Triggers an event determined by the key
-  void OnEvent(const T& rEventKey, EventParams& args)
+  void OnEvent(const KeyType& rEventKey, EventParams& args)
   {
     MappedEvents::iterator itResult = m_events.find(rEventKey);
 
@@ -60,8 +49,8 @@ public:
   }
 
   // Register a new listener based on a class instance (static or dynamic)
-  template <typename EventT>
-  void RegisterEvent(const T& rEventKey, EventT* spInst, void (EventT::*func)(EventParams& args))
+  template <class EventT>
+  void RegisterEvent(const KeyType& rEventKey, EventT* spInst, void (EventT::*func)(EventParams& args))
   {
     assert(spInst);
 
@@ -70,7 +59,7 @@ public:
   }
 
   // Unregister a listener from all registered callbacks (optionally clear empty events)
-  template <typename EventT>
+  template <class EventT>
   void UnregisterInstance(EventT* pInst, bool bClearOldEvents = true)
   {
 	  MappedEvents::iterator it = m_events.begin();
@@ -88,8 +77,5 @@ public:
   }
 
 };
-
-template<typename T>
-EventManager<T> EventManager<T>::sManagerInstance;
 
 #endif

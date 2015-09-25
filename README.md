@@ -31,11 +31,11 @@ public:
 
 int main(int, char**)
 {
-  EventManager<> man(EventManager<>::Get());
+  EventManager<std::string> man;
 
   B bInst;
 
-  man.RegisterEvent<B>("event1", &bInst, &B::SomeEvent);
+  man.RegisterEvent("event1", &bInst, &B::SomeEvent2);
 
   // trigger event with class registered
   man.OnEvent("event1");
@@ -44,8 +44,8 @@ int main(int, char**)
   man.UnregisterInstance(&bInst);
   man.OnEvent("event1");
 
-  // and again
-  man.RegisterEvent<B>("event2", &bInst, &B::SomeEvent2);
+  // explicitly register bInst as class A
+  man.RegisterEvent<A>("event2", &bInst, &B::SomeEvent);
   man.OnEvent("event2");
 
   return 0;
