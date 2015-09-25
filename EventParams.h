@@ -56,7 +56,7 @@ public:
 
   // Return the parameter value reference of known type
   template<class T>
-  const T& Get(const std::string& szParamName)
+  T& Get(const std::string& szParamName)
   {
     assert(Find(szParamName));
 
@@ -65,7 +65,7 @@ public:
 
   // Return the parameter value as a pointer of known type
   template<class T>
-  const T* GetPtr(const std::string& szParamName)
+  T* GetPtr(const std::string& szParamName)
   {
 	  assert(Find(szParamName));
 
