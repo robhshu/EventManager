@@ -20,7 +20,8 @@
 template<class KeyType>
 class EventManager
 {
-  typedef std::map<KeyType, Event> MappedEvents;
+  typedef typename std::map<KeyType, Event> MappedEvents;
+  typedef typename MappedEvents::iterator MappedEventsIt;
   MappedEvents m_events;
 
 public:
@@ -40,7 +41,7 @@ public:
   // Triggers an event determined by the key
   void OnEvent(const KeyType& rEventKey, EventParams& args)
   {
-    MappedEvents::iterator itResult = m_events.find(rEventKey);
+    MappedEventsIt itResult(m_events.find(rEventKey));
 
     // Checking the event exists as an early-out condition
     if (itResult != m_events.end()) {
@@ -55,7 +56,7 @@ public:
     assert(spInst);
 
     // Our map will automatically add a non-existent key
-    m_events[rEventKey].AddListener<EventT>(spInst, func);
+    m_events[rEventKey].template AddListener<EventT>(spInst, func);
   }
 
   // Unregister a listener from all registered callbacks (optionally clear empty events)
