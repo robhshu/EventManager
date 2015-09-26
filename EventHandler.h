@@ -8,6 +8,7 @@
 #include <cassert>
 
 #include "Event.h"
+#include "EventBase.h"
 
 template <typename T>
 class EventHandler

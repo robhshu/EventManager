@@ -1,6 +1,6 @@
 //
 //  Event.h
-//  EventManager
+//  Event
 //
 #ifndef EVENT_H
 #define EVENT_H
@@ -12,15 +12,6 @@
 
 #include "EventParams.h"
 #include "EventHandler.h"
-
-class EventBase
-{
-public:
-  // Abstract call to trigger the event
-  virtual void Fire(EventParams& args) = 0;
-  virtual bool IsEvent(void* pInst) const = 0;
-  virtual ~EventBase() {} 
-};
 
 class Event
 {
@@ -34,7 +25,7 @@ public:
   ~Event();
 
   // Create an event handler for this callback
-  template <typename T>
+  template <class T>
   void AddListener(T* spInst, void(T::*func)(EventParams& args))
   {
     EventHandler<T>* handle(new EventHandler<T>(spInst, func));
