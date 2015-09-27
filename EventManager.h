@@ -63,7 +63,7 @@ public:
   template <class EventT>
   void UnregisterInstance(EventT* pInst, bool bClearOldEvents = true)
   {
-	  MappedEvents::iterator it = m_events.begin();
+	  MappedEventsIt it(m_events.begin());
 
     while( it != m_events.end() ) {
       (*it).second.RemoveListener(pInst);
