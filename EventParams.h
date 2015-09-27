@@ -42,7 +42,7 @@ public:
   {
     MappedParamsIt it(m_params.find(szParamName));
 
-    if( it = m_params.end() ) {
+    if( it == m_params.end() ) {
       return false;
     } else {
       ptrValue = reinterpret_cast<T&>(m_params[szParamName]);
