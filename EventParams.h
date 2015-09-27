@@ -13,6 +13,7 @@
 class EventParams
 {
   typedef std::map<std::string, void*> MappedParams;
+  typedef MappedParams::iterator MappedParamsIt;
   MappedParams m_params;
 
 public:
@@ -26,11 +27,7 @@ public:
   template<class T>
   void Set(const std::string& szParamName, T& ptrValue)
   {
-    assert(!Find(szParamName));
-
-    if (!Find(szParamName)) {
-      m_params[szParamName] = (void*)ptrValue;
-    }
+    m_params[szParamName] = reinterpret_cast<void*>(ptrValue);
   }
 
   template<class T>
@@ -43,12 +40,12 @@ public:
   template<class T>
   bool Remove(const std::string& szParamName, T& ptrValue)
   {
-    MappedParams it = m_params.find(szParamName);
+    MappedParamsIt it(m_params.find(szParamName));
 
     if( it = m_params.end() ) {
       return false;
     } else {
-      ptrValue = (T&)m_params[szParamName];
+      ptrValue = reinterpret_cast<T&>(m_params[szParamName]);
       m_params.erase(it);
       return true;
     }
@@ -58,18 +55,14 @@ public:
   template<class T>
   T& Get(const std::string& szParamName)
   {
-    assert(Find(szParamName));
-
-    return (T&)m_params[szParamName];
+    return reinterpret_cast<T&>(m_params[szParamName]);
   }
 
   // Return the parameter value as a pointer of known type
   template<class T>
   T* GetPtr(const std::string& szParamName)
   {
-	  assert(Find(szParamName));
-
-	  return (T*)m_params[szParamName];
+    return reinterpret_cast<T*>(m_params[szParamName]);
   }
 };
 
